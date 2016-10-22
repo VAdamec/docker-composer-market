@@ -1,0 +1,63 @@
+version: '2'
+services:
+  elasticsearch_primary:
+    build: elasticsearch/
+    command: elasticsearch -Des.network.host=172.22.0.10 -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.11"
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+        app_net:
+          ipv4_address: 172.22.0.10
+
+  elasticsearch_secondary:
+    build: elasticsearch/
+    command: elasticsearch -Des.network.host=172.22.0.11 -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.10"
+    ports:
+      - "9201:9201"
+      - "9301:9301"
+    links:
+      - elasticsearch_primary
+    depends_on:
+      - elasticsearch_primary
+    networks:
+        app_net:
+          ipv4_address: 172.22.0.11
+
+  logstash:
+    build: logstash/
+    command: logstash -f /etc/logstash/conf.d/logstash.conf
+    volumes:
+      - ./logstash/config:/etc/logstash/conf.d
+      - ./logstash/templates:/etc/logstash/templates
+    ports:
+      - "5000:5000"
+      - "5001:5001"
+    links:
+      - elasticsearch_primary
+    networks:
+        app_net:
+          ipv4_address: 172.22.0.12
+
+  kibana:
+    build: kibana/
+    volumes:
+      - ./kibana/config/:/opt/kibana/config/
+    ports:
+      - "5601:5601"
+    links:
+      - elasticsearch_primary
+    networks:
+        app_net:
+          ipv4_address: 172.22.0.13
+
+networks:
+  app_net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.22.0.0/24
+        gateway: 172.22.0.1
