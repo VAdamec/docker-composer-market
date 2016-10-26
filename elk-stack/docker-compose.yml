@@ -1,21 +1,28 @@
 version: '2'
 services:
-  elasticsearch_primary:
+  elasticsearch_primary_master:
+    #image: vaclavadamec/elkstack-elasticsearch
     build: elasticsearch/
-    command: elasticsearch -Des.network.host=172.22.0.10 -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.11"
+    command: elasticsearch -Dscript.search=on -Dscript.groovy.sandbox.enabled=true -Dscript.engine.groovy.inline.aggs=on -Des.network.host=172.22.0.10 -Dnode.data=false -Dnode.master=true -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.11"
     ports:
       - "9200:9200"
       - "9300:9300"
     networks:
         app_net:
           ipv4_address: 172.22.0.10
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "172.22.0.23:24224"
+        tag: "docker.elkmaster"
 
-  elasticsearch_secondary:
+  elasticsearch_secondary_master:
+    #image: vaclavadamec/elkstack-elasticsearch
     build: elasticsearch/
-    command: elasticsearch -Des.network.host=172.22.0.11 -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.10"
+    command: elasticsearch -Dscript.search=on -Dscript.groovy.sandbox.enabled=true -Dscript.engine.groovy.inline.aggs=on -Des.network.host=172.22.0.11 -Dnode.data=false -Dnode.master=true -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.10"
     ports:
-      - "9201:9201"
-      - "9301:9301"
+      - "9201:9200"
+      - "9301:9300"
     links:
       - elasticsearch_primary
     depends_on:
@@ -23,8 +30,90 @@ services:
     networks:
         app_net:
           ipv4_address: 172.22.0.11
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "172.22.0.23:24224"
+        tag: "docker.elkmaster"
+
+  elasticsearch_primary:
+    #image: vaclavadamec/elkstack-elasticsearch
+    build: elasticsearch/
+    command: elasticsearch -Dscript.search=on -Dscript.groovy.sandbox.enabled=true -Dscript.engine.groovy.inline.aggs=on -Des.network.host=172.22.0.12 -Dnode.data=true -Dnode.master=false -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.10,172.22.0.11"
+    ports:
+      - "9202:9200"
+      - "9302:9300"
+    networks:
+        app_net:
+          ipv4_address: 172.22.0.12
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "172.22.0.23:24224"
+        tag: "docker.elkmaster"
+
+  elasticsearch_secondary:
+    #image: vaclavadamec/elkstack-elasticsearch
+    build: elasticsearch/
+    command: elasticsearch -Dscript.search=on -Dscript.groovy.sandbox.enabled=true -Dscript.engine.groovy.inline.aggs=on -Des.network.host=172.22.0.13 -Dnode.data=true -Dnode.master=false -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.10,172.22.0.11"
+    ports:
+      - "9203:9200"
+      - "9303:9300"
+    links:
+      - elasticsearch_primary
+    depends_on:
+      - elasticsearch_primary
+    networks:
+        app_net:
+          ipv4_address: 172.22.0.13
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "172.22.0.23:24224"
+        tag: "docker.elkmaster"
+
+  elasticsearch_tertiary:
+    #image: vaclavadamec/elkstack-elasticsearch
+    build: elasticsearch/
+    command: elasticsearch -Dscript.search=on -Dscript.groovy.sandbox.enabled=true -Dscript.engine.groovy.inline.aggs=on -Des.network.host=172.22.0.14 -Dnode.data=true -Dnode.master=false -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.10,172.22.0.11"
+    ports:
+      - "9204:9200"
+      - "9304:9300"
+    links:
+      - elasticsearch_primary
+    depends_on:
+      - elasticsearch_primary
+    networks:
+        app_net:
+          ipv4_address: 172.22.0.14
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "172.22.0.23:24224"
+        tag: "docker.elkmaster"
+
+  elasticsearch_gateway:
+    #image: vaclavadamec/elkstack-elasticsearch
+    build: elasticsearch/
+    command: elasticsearch -Dscript.search=on -Dscript.groovy.sandbox.enabled=true -Dscript.engine.groovy.inline.aggs=on -Des.network.host=172.22.0.20 -Dnode.data=false -Dnode.master=false -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.10,172.22.0.11"
+    ports:
+      - "9210:9200"
+      - "9310:9300"
+    links:
+      - elasticsearch_primary
+    depends_on:
+      - elasticsearch_primary
+    networks:
+        app_net:
+          ipv4_address: 172.22.0.20
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "172.22.0.23:24224"
+        tag: "docker.elkmaster"
 
   logstash:
+    #image: vaclavadamec/elkstack-logstash
     build: logstash/
     command: logstash -f /etc/logstash/conf.d/logstash.conf
     volumes:
@@ -35,11 +124,19 @@ services:
       - "5001:5001"
     links:
       - elasticsearch_primary
+    depends_on:
+      - elasticsearch_primary
     networks:
         app_net:
-          ipv4_address: 172.22.0.12
+          ipv4_address: 172.22.0.21
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "172.22.0.23:24224"
+        tag: "docker.elkmaster"
 
   kibana:
+    #image: vaclavadamec/elkstack-kibana
     build: kibana/
     volumes:
       - ./kibana/config/:/opt/kibana/config/
@@ -47,9 +144,29 @@ services:
       - "5601:5601"
     links:
       - elasticsearch_primary
+    depends_on:
+      - elasticsearch_primary
     networks:
         app_net:
-          ipv4_address: 172.22.0.13
+          ipv4_address: 172.22.0.22
+    logging:
+      driver: fluentd
+      options:
+        fluentd-address: "172.22.0.23:24224"
+        tag: "docker.elkmaster"
+
+  fluentd:
+    #image: vaclavadamec/elkstack-fluentd
+    build: fluentd/
+    ports:
+      - "24224:5140"
+    links:
+      - elasticsearch_primary
+    depends_on:
+      - elasticsearch_primary
+    networks:
+        app_net:
+          ipv4_address: 172.22.0.23
 
 networks:
   app_net:

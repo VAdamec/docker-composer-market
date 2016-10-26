@@ -1,0 +1,38 @@
+version: '2'
+services:
+  graphite:
+    build: graphite/
+    #image: vaclavadamec/metrics-graphite
+    command: /usr/bin/supervisord
+    ports:
+      - "8888:80"
+      - "2003:2003"
+      - "2003/udp:2003/udp"
+      - "2004:2004"
+      - "7002:7002"
+    networks:
+        app_net:
+          ipv4_address: 172.23.0.10
+
+  grafana:
+    build: grafana/
+    #image: vaclavadamec/metrics-grafana
+    command: /run.sh
+    ports:
+      - "3000:3000"
+    links:
+      - graphite
+    networks:
+        app_net:
+          ipv4_address: 172.23.0.15
+
+networks:
+  app_net:
+    driver: bridge
+    driver_opts:
+      com.docker.network.enable_ipv6: "false"
+    ipam:
+      driver: default
+      config:
+      - subnet: 172.23.0.0/24
+        gateway: 172.23.0.1
