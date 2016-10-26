@@ -1,7 +1,7 @@
 version: '2'
 services:
   elasticsearch_primary_master:
-    #image: vaclavadamec/elkstack-elasticsearch
+    #image: vaclavadamec/docker-composer-market:elasticsearch
     build: elasticsearch/
     command: elasticsearch -Dscript.search=on -Dscript.groovy.sandbox.enabled=true -Dscript.engine.groovy.inline.aggs=on -Des.network.host=172.22.0.10 -Dnode.data=false -Dnode.master=true -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.11"
     ports:
@@ -17,7 +17,7 @@ services:
         tag: "docker.elkmaster"
 
   elasticsearch_secondary_master:
-    #image: vaclavadamec/elkstack-elasticsearch
+    #image: vaclavadamec/docker-composer-market:elasticsearch
     build: elasticsearch/
     command: elasticsearch -Dscript.search=on -Dscript.groovy.sandbox.enabled=true -Dscript.engine.groovy.inline.aggs=on -Des.network.host=172.22.0.11 -Dnode.data=false -Dnode.master=true -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.10"
     ports:
@@ -37,7 +37,7 @@ services:
         tag: "docker.elkmaster"
 
   elasticsearch_primary:
-    #image: vaclavadamec/elkstack-elasticsearch
+    #image: vaclavadamec/docker-composer-market:elasticsearch
     build: elasticsearch/
     command: elasticsearch -Dscript.search=on -Dscript.groovy.sandbox.enabled=true -Dscript.engine.groovy.inline.aggs=on -Des.network.host=172.22.0.12 -Dnode.data=true -Dnode.master=false -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.10,172.22.0.11"
     ports:
@@ -53,7 +53,7 @@ services:
         tag: "docker.elkmaster"
 
   elasticsearch_secondary:
-    #image: vaclavadamec/elkstack-elasticsearch
+    #image: vaclavadamec/docker-composer-market:elasticsearch
     build: elasticsearch/
     command: elasticsearch -Dscript.search=on -Dscript.groovy.sandbox.enabled=true -Dscript.engine.groovy.inline.aggs=on -Des.network.host=172.22.0.13 -Dnode.data=true -Dnode.master=false -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.10,172.22.0.11"
     ports:
@@ -73,7 +73,7 @@ services:
         tag: "docker.elkmaster"
 
   elasticsearch_tertiary:
-    #image: vaclavadamec/elkstack-elasticsearch
+    #image: vaclavadamec/docker-composer-market:elasticsearch
     build: elasticsearch/
     command: elasticsearch -Dscript.search=on -Dscript.groovy.sandbox.enabled=true -Dscript.engine.groovy.inline.aggs=on -Des.network.host=172.22.0.14 -Dnode.data=true -Dnode.master=false -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.10,172.22.0.11"
     ports:
@@ -93,7 +93,7 @@ services:
         tag: "docker.elkmaster"
 
   elasticsearch_gateway:
-    #image: vaclavadamec/elkstack-elasticsearch
+    #image: vaclavadamec/docker-composer-market:elasticsearch
     build: elasticsearch/
     command: elasticsearch -Dscript.search=on -Dscript.groovy.sandbox.enabled=true -Dscript.engine.groovy.inline.aggs=on -Des.network.host=172.22.0.20 -Dnode.data=false -Dnode.master=false -Ddiscovery.zen.ping.multicast.enabled=false -Ddiscovery.zen.ping.unicast.hosts="172.22.0.10,172.22.0.11"
     ports:
@@ -113,7 +113,7 @@ services:
         tag: "docker.elkmaster"
 
   logstash:
-    #image: vaclavadamec/elkstack-logstash
+    #image: vaclavadamec/docker-composer-market:logstash
     build: logstash/
     command: logstash -f /etc/logstash/conf.d/logstash.conf
     volumes:
@@ -136,7 +136,7 @@ services:
         tag: "docker.elkmaster"
 
   kibana:
-    #image: vaclavadamec/elkstack-kibana
+    #image: vaclavadamec/docker-composer-market:kibana
     build: kibana/
     volumes:
       - ./kibana/config/:/opt/kibana/config/
@@ -156,7 +156,7 @@ services:
         tag: "docker.elkmaster"
 
   fluentd:
-    #image: vaclavadamec/elkstack-fluentd
+    #image: vaclavadamec/docker-composer-market:fluentd
     build: fluentd/
     ports:
       - "24224:5140"
