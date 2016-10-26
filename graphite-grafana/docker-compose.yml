@@ -2,7 +2,7 @@ version: '2'
 services:
   graphite:
     build: graphite/
-    #image: vaclavadamec/metrics-graphite
+    #image: vaclavadamec/docker-composer-market:graphite
     command: /usr/bin/supervisord
     ports:
       - "8888:80"
@@ -16,7 +16,7 @@ services:
 
   grafana:
     build: grafana/
-    #image: vaclavadamec/metrics-grafana
+    #image: vaclavadamec/docker-composer-market:grafana
     command: /run.sh
     ports:
       - "3000:3000"
