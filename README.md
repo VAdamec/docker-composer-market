@@ -1,4 +1,6 @@
-# docker-composer-market
+# Docker-composer-market
+* simple stacks for testing new technologies without worries and troubles
+* see READMEs for more informations
 
 ## elk-stack
 * full ELK stack with Kibana and logstash/fluent + plugins
@@ -6,9 +8,8 @@
 
 ## graphite-grafana
 * simple Docker with Graphite and Carbon listener + Grafana (graphite storage need to be manually setup)
-* easy way how to analyze your metrics or just play with Grafana
 
 # Credits
-https://github.com/grafana/grafana-docker
-https://github.com/deviantony/docker-elk
-and many others
+* https://github.com/grafana/grafana-docker
+* https://github.com/deviantony/docker-elk
+* and many others
