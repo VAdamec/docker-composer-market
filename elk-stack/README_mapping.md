@@ -20,7 +20,7 @@ curl -XGET http://localhost:9200/_template/http-log-logstash?pretty
 curl -XDELETE http://localhost:9200/_template/http-log-logstash
 ```
 
-# Mapping examples
+## Mapping examples
 
 ```
 curl -XPUT 'localhost:9200/_template/all' -d '
@@ -49,4 +49,11 @@ curl -XPUT 'localhost:9200/_template/all' -d '
 }
 }
 '
+```
+
+
+## List mappings
+
+```
+curl -XGET 'http://localhost:9200/demo/_mapping'
 ```
